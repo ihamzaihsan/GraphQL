@@ -119,25 +119,7 @@ passwordEl.addEventListener('input', () => {
     }
 })
 
-submitBtn.addEventListener('click', () => {
-    if (passwordValid && checkboxEl.checked && usernameValid && sprayRepeatCounter > 1) {
-        gsap.to("svg > *", {
-            duration: .1,
-            opacity: 0,
-            stagger: {
-                each: 0.03,
-                from: 'random',
-                ease: 'none',
-            }
-        })
-        gsap.to(".form-row", {
-            delay: .4,
-            duration: .1,
-            opacity: 0,
-            stagger: .1
-        })
-    }
-})
+// Remove click listener since form submit is handled by login.js
 
 
 function layoutPreparation() {
@@ -253,10 +235,10 @@ function updateSpiralPath(centerX, centerY, radius, coils, points, offset) {
 
 function createEmailTl() {
     const spiralTurnsNumber = 8;
-    const spiralProgress = {v: 0}
-    const hammerTimeStart = 1.85;
-    const fingersDelay = .5;
-    const fingersTimeDelta = .03;
+const spiralProgress = {v: 0}
+const hammerTimeStart = 0.5; // Reduced from 1.85
+const fingersDelay = 0.2;   // Reduced from 0.5
+const fingersTimeDelta = 0.01; // Reduced from 0.03
     const tl = gsap.timeline({
         paused: true,
         defaults: {
