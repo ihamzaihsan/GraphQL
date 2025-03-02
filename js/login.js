@@ -11,6 +11,7 @@ const identifierEl = document.querySelector('.form-container .form-row input[nam
 const passwordEl = document.querySelector('.form-container .form-row input[name="password"]');
 const submitBtn = document.querySelector('.form-container .form-row input[type="submit"]');
 const checkboxEl = document.querySelector('.form-container .form-row input[type="checkbox"]');
+checkboxEl.disabled = true;
 
 // Create error message element
 const errorMessage = document.createElement('div');
@@ -40,11 +41,36 @@ const validateInputs = () => {
 
 // Add input listeners
 identifierEl.addEventListener('input', validateInputs);
-passwordEl.addEventListener('input', validateInputs);
+passwordEl.addEventListener('input', () => {
+    passwordValid = passwordEl.value.length > 0;
+    
+    // Enable/disable checkbox based on password input
+    checkboxEl.disabled = !passwordValid;
+    
+    // Uncheck when password is cleared
+    if (!passwordValid) {
+        checkboxEl.checked = false;
+        createPullingTimeline(state.handClosed, false); // Reset animations
+    }
+
+    if (passwordValid) {
+        passwordTl.play();
+        passwordEl.classList.add("valid");
+    } else {
+        passwordTl.reverse();
+        passwordEl.classList.remove("valid");
+    }
+});
 
 // Handle form submission
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Check password before checkbox
+    if (!passwordValid) {
+        errorMessage.textContent = 'Please enter a password first';
+        return;
+    }
 
      // Check if checkbox is checked first
      if (!checkboxEl.checked) {

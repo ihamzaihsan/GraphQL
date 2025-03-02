@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/profilestyle.css">
     <title>Profile - GraphQL</title>
+    <!-- Add D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
     <div class="profile-container">
@@ -21,12 +23,38 @@
         <section class="statistics">
             <h2>Statistics</h2>
             <div class="graphs-container">
-                <div class="graph">
-                    <h3>XP Progress</h3>
-                    <svg id="xpGraph" class="stat-graph" viewBox="0 0 400 300">
-                        <!-- SVG graph will be generated here -->
-                    </svg>
+                <!-- Premium XP Graph -->
+                <div class="xp-master-container">
+                    <div class="xp-graph-card">
+                        <div class="graph-header">
+                            <h3 class="graph-title">XP Mastery Progression</h3>
+                            <div class="graph-legends">
+                                <div class="legend-item">
+                                    <span class="legend-color accent-gradient"></span>
+                                    <span class="legend-label">Cumulative XP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="xp-graph-container">
+                            <svg class="xp-progression-svg" viewBox="0 0 800 400">
+                                <defs>
+                                    <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="rgba(0, 123, 255, 0.4)"/>
+                                        <stop offset="100%" stop-color="rgba(0, 123, 255, 0.1)"/>
+                                    </linearGradient>
+                                </defs>
+                                <path class="xp-path" d="" fill="url(#areaGradient)"/>
+                                <path class="xp-line" d="" fill="none"/>
+                                <g class="grid-x"></g>
+                                <g class="grid-y"></g>
+                                <g class="data-points"></g>
+                            </svg>
+                            <div class="xp-tooltip"></div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Audit Ratio Graph (Keep existing structure) -->
                 <div class="graph">
                     <h3>Audit Ratio</h3>
                     <svg id="auditGraph" class="stat-graph" viewBox="0 0 400 300">

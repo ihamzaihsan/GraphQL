@@ -47,11 +47,16 @@ window.onresize = scaleToFit;
 
 function scaleToFit() {
     const h = 800;
+    const headerHeight = 80;
 
-    if (window.innerHeight < h) {
+    if (window.innerHeight < h + headerHeight) {
         gsap.set(containerEl, {
-            scale: window.innerHeight / h,
+            scale: (window.innerHeight - headerHeight) / h,
             transformOrigin: "50% 75%"
+        })
+    } else {
+        gsap.set(containerEl, {
+            scale: 1
         })
     }
 }

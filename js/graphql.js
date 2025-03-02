@@ -55,35 +55,47 @@ const fetchGraphQL = async (query, variables = {}, retryCount = 0) => {
         throw error;
     }
 };
-
-// Query: Get user basic information
-const getUserInfo = async () => {
-    const query = `
-    query {
-        user {
-            email
-            login
-            createdAt
-            attrs
-        }
-    }
-    `;
-    return fetchGraphQL(query);
-};
-
+  // Query: Get user basic information
+  const getUserInfo = async () => {
+      const query = `
+      query {
+          user {
+              id
+              login
+              firstName
+              lastName
+              email
+              campus
+              attrs
+              transactions(order_by: {amount: desc}, where: {type: {_eq: "level"}}, limit: 1) {
+                  type
+                  amount
+              }
+          }
+      }
+      `;
+      return fetchGraphQL(query);
+  };
 // Query: Get user XP transactions
 const getUserXP = async () => {
     const query = `
-        query {
-            xp: transaction(where: {type: {_eq: "xp"}}, order_by: {createdAt: asc}) {
-                amount
-                createdAt
-                path
-            }
+      {
+        transaction(
+          where: { 
+            type: { _eq: "xp" }, 
+            event: { object: { name: { _eq: "Module" } } } 
+          }, 
+          order_by: { id: asc }
+        ) {
+          id
+          amount
+          createdAt
+          }
         }
-    `;
+      `;
     return fetchGraphQL(query);
 };
+
 
 // Query: Get user audit ratio
 const getUserAudits = async () => {

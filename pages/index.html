@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/style.css">
-    <title>Document</title>
+    <title>GraphQL Login</title>
+    <style>
+        .graphql-header {
+            text-align: center;
+            font-size: 3.5rem;
+            margin: 100px 0;
+            color: #222;
+            font-family: Arial, sans-serif;
+            letter-spacing: 3px;
+        }
+    </style>
 </head>
 <body>
+    <h1 class="graphql-header">GraphQL</h1>
     <div class="container">
         <form class="form-container">
             <label class="form-row">
@@ -16,7 +27,7 @@
                 <input autocomplete="one-time-code" type="password" id="password" name="password" placeholder="password" required>
             </label>
             <label class="form-row">
-                <input type="checkbox" id="subscribe" name="subscribe"> agree to whatever
+                <input type="checkbox" id="subscribe" name="subscribe"> Trust me
             </label>
             <div class="form-row">
                 <input type="submit" value="Login">
