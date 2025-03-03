@@ -1,5 +1,5 @@
 import { logout, isAuthenticated, getToken } from './auth.js';
-import { getUserInfo, getUserXP, getUserAudits } from './graphql.js';
+import { getUserInfo, getUserXP, getUserAudits, getUserFinshedProjects} from './graphql.js';
 
 // Check authentication
 if (!isAuthenticated()) {
@@ -26,10 +26,14 @@ const loadUserData = async () => {
         const userInfo = await getUserInfo();
         const xpData = await getUserXP();
         const auditData = await getUserAudits();
+        const FinshProjects = await getUserFinshedProjects();
+        
         
         console.log('User Info:', userInfo);
         console.log('XP Data:', xpData);
         console.log('Audit Data:', auditData);
+        console.log('FinshProjects:', FinshProjects);
+        
         
         
         displayUserInfo(userInfo.user);
@@ -40,6 +44,8 @@ const loadUserData = async () => {
             transaction: auditData.up,
             transaction1: auditData.down
         });
+
+        displayCompletedProjects();
         
     } catch (error) {
         console.error('GraphQL Error:', error);
@@ -320,5 +326,77 @@ const createAuditGraph = ({ transaction: upTransactions, transaction1: downTrans
         </svg>
     `;
 };
+
+const displayCompletedProjects = async () => {
+    try {
+        // Fetch projects data
+        const response = await getUserFinshedProjects();
+        
+        // Extract the projects array based on the actual response structure
+        let projects = [];
+        if (response?.user && Array.isArray(response.user)) {
+            // If the response has a user array, get the first user's projectEx
+            projects = response.user[0]?.projectEx || [];
+        }
+
+        const tableBody = document.querySelector('.projects-table tbody');
+        
+        // Clear existing rows
+        tableBody.innerHTML = '';
+        
+        // Format date function
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        };
+        
+        // Create table rows
+        projects.forEach(project => {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td>${project.object?.name || 'N/A'}</td>
+                <td><span class="xp-badge">${(project.amount / 1000).toFixed(2)} KB</span></td>
+                <td class="date-cell">${formatDate(project.createdAt)}</td>
+                <td>
+                    <a href="https://learn.reboot01.com/intra${project.path}" 
+                       target="_blank" 
+                       rel="noopener noreferrer">
+                        View Project
+                    </a>
+                </td>
+
+            `;
+            
+            tableBody.appendChild(row);
+        });
+        
+        // Add empty state if no projects
+        if (projects.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        No completed projects found
+                    </td>
+                </tr>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error loading completed projects:', error);
+        document.querySelector('.projects-table tbody').innerHTML = `
+            <tr>
+                <td colspan="5" class="error-state">
+                    Error loading projects. Please try again later.
+                </td>
+            </tr>
+        `;
+    }
+};
+
 // Initialize
 loadUserData();

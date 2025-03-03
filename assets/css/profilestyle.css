@@ -261,3 +261,94 @@ text-rendering: optimizeLegibility; /* Better text rendering */
       stroke-dashoffset: 0;
     }
   }
+
+  /* Completed Projects Section */
+.completed-projects-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-top: 30px;
+}
+
+.completed-projects-container h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+.projects-table-container {
+  overflow-x: auto;
+}
+
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.projects-table th,
+.projects-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.projects-table th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+.projects-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.projects-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.projects-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.projects-table a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.projects-table a:hover {
+  color: var(--accent-secondary);
+  text-decoration: underline;
+}
+
+.xp-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #e9f5ff;
+  color: var(--accent-primary);
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.date-cell {
+  white-space: nowrap;
+}
+
+/* Responsive Table */
+@media screen and (max-width: 768px) {
+  .projects-table th,
+  .projects-table td {
+      padding: 10px;
+  }
+  
+  .completed-projects-container {
+      padding: 15px;
+  }
+}

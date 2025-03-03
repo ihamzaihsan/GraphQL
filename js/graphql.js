@@ -116,33 +116,43 @@ const getUserAudits = async () => {
     return fetchGraphQL(query);
 };
 
-// Query: Get user XP and audit transactions in one query
-const getUserStats = async () => {
+// Query: Get user finsihed projects info
+const getUserFinshedProjects = async () => {
     const query = `
         query {
-            xpTransactions: transaction(where: {type: {_eq: "xp"}}, order_by: {createdAt: asc}) {
-                amount
-                createdAt
-                path
-            }
-            upTransactions: transaction(where: {type: {_eq: "up"}}) {
-                amount
-                path
-                createdAt
-            }
-            downTransactions: transaction(where: {type: {_eq: "down"}}) {
-                amount
-                path
-                createdAt
+            user {
+                projectEx: transactions(
+                    order_by: { createdAt: desc }
+                    where: {
+                        _and: [
+                            { type: { _eq: "xp" } }
+                            { progress: { isDone: { _eq: true } } }
+                            { path: { _ilike: "%/bahrain/bh-module/%" } }
+                            { object: { type: { _eq: "project" } } }
+                        ]
+                    }
+                ) {
+                    userLogin
+                    type
+                    amount
+                    path
+                    createdAt
+                    object {
+                        name
+                        type
+                    }
+                }
             }
         }
     `;
     return fetchGraphQL(query);
 };
 
+
+
 export {
     getUserInfo,
     getUserXP,
     getUserAudits,
-    getUserStats
+    getUserFinshedProjects
 };
