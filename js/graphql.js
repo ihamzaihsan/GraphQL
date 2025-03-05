@@ -148,11 +148,29 @@ const getUserFinshedProjects = async () => {
     return fetchGraphQL(query);
 };
 
+const getSkillDetails = async (userId) => {
+    const query = `
+        query user($userId: Int!) {
+    user: user_by_pk(id: $userId) {
+      transactions (
+        order_by: [{ type: desc }, { amount: desc }]
+        distinct_on: [type]
+        where: { userId: { _eq: $userId }, type: { _like: "skill_%" } },
+      )
+      { type, amount }
+    }
+  }
+    `;
+    return fetchGraphQL(query, { userId });
+};
+
+
 
 
 export {
     getUserInfo,
     getUserXP,
     getUserAudits,
-    getUserFinshedProjects
+    getUserFinshedProjects,
+    getSkillDetails
 };

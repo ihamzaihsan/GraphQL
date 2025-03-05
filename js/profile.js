@@ -1,5 +1,5 @@
 import { logout, isAuthenticated, getToken } from './auth.js';
-import { getUserInfo, getUserXP, getUserAudits, getUserFinshedProjects} from './graphql.js';
+import { getUserInfo, getUserXP, getUserAudits, getUserFinshedProjects, getSkillDetails} from './graphql.js';
 
 // Check authentication
 if (!isAuthenticated()) {
@@ -36,14 +36,26 @@ const loadUserData = async () => {
                 <div class="skeleton-line"></div>
             </div>
         `;
+
+        const userInfoData = await getUserInfo();
+        const userId = userInfoData.user[0].id;
         
         // Fetch all data in parallel for better performance
-        const [userInfo, xpData, auditData, finishedProjects] = await Promise.all([
+        const [userInfo, xpData, auditData, finishedProjects, skillData] = await Promise.all([
             getUserInfo(),
             getUserXP(),
             getUserAudits(),
-            getUserFinshedProjects()
+            getUserFinshedProjects(),
+            getSkillDetails(userId)
         ]);
+
+        console.log('skillData', skillData);
+
+
+        if (skillData?.user?.transactions) {
+            createTechnicalSkillsRadar(skillData.user.transactions);
+            createTechnologySkillsRadar(skillData.user.transactions);
+        }
         
         // Display data once loaded
         displayUserInfo(userInfo.user);
@@ -575,6 +587,8 @@ const displayCompletedProjects = async (projectsData) => {
     }
 };
 
+
+
 // Add page load animation
 document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
@@ -612,6 +626,160 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 600);
     }
 });
+
+// Radar Chart Creation Functions
+const createTechnicalSkillsRadar = (skillsData) => {
+    const technicalSkills = [
+        'skill_prog','skill_algo', 'skill_sys-admin',
+        'skill_front-end','skill_back-end', 'skill_game', 'skill_tcp', 
+    ];  
+         
+    
+    const processedData = technicalSkills.map(skill => {
+        const found = skillsData.find(d => d.type === skill);
+        return {
+            axis: skill.replace('skill_', '').replace('-', ' ').toUpperCase(),
+            value: found ? found.amount : 0
+        };
+    });
+
+    drawRadarChart('#technicalRadar', processedData, 'Technical Skills');
+};
+
+const createTechnologySkillsRadar = (skillsData) => {
+    const technologySkills = [
+        'skill_go', 'skill_js',  'skill_html',
+         'skill_css', 'skill_unix','skill_docker',  'skill_sql',
+    ];
+
+    const processedData = technologySkills.map(skill => {
+        const found = skillsData.find(d => d.type === skill);
+        return {
+            axis: skill.replace('skill_', '').toUpperCase(),
+            value: found ? found.amount : 0
+        };
+    });
+
+    drawRadarChart('#technologyRadar', processedData, 'Technology Skills');
+};
+
+const drawRadarChart = (containerSelector, data, title) => {
+    const container = d3.select(containerSelector);
+    container.selectAll("*").remove();
+
+    const width = 450;
+    const height = 398;
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const innerRadius = Math.min(width, height) * 0.4 - 10;
+
+    const svg = container.append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', `translate(${width/2 -5},${height/2})`);
+
+    // Title
+    svg.append('text')
+        .attr('class', 'radar-title')
+        .attr('text-anchor', 'middle')
+        .attr('y', -height/2 + 393)
+        .text(title);
+
+    // Scales
+    const maxValue = d3.max(data, d => d.value);
+    const rScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([0, innerRadius]);
+
+    // Create axes
+    const axes = data.map(d => d.axis);
+    const angleSlice = (Math.PI * 2) / axes.length;
+
+    // Draw grid
+    const levels = 5;
+    const levelFactor = innerRadius / levels;
+
+    for(let i = 0; i <= levels; i++) {
+        const radius = levelFactor * i;
+        
+        svg.append('circle')
+            .attr('r', radius)
+            .style('fill', 'none')
+            .style('stroke', '#94a3b8')
+            .style('stroke-width', 0.5);
+
+        svg.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('y', -radius + 2)
+            .text(Math.round(100 * (i/levels )))
+            .style('font-size', '10px')
+            .style('fill', '#64748b');
+    }
+
+    // Create axes lines
+    axes.forEach((axis, i) => {
+        const angle = angleSlice * i - Math.PI/2;
+        const x = Math.cos(angle) * innerRadius;
+        const y = Math.sin(angle) * innerRadius;
+
+        // Axis Labels
+        svg.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('transform', `translate(${Math.cos(angle) * (innerRadius + 40)},${Math.sin(angle) * (innerRadius + 40)})`)
+            .text(axis)
+            .style('font-size', '12px')
+            .style('fill', '#6448b')
+            .style('text-shadow', '0 1px 0 #fff');
+    });
+
+    // Convert data into coordinates
+    const radarPoints = data.map((d, i) => {
+        const angle = angleSlice * i - Math.PI/2;
+        return [
+            Math.cos(angle) * rScale(d.value),
+            Math.sin(angle) * rScale(d.value)
+        ];
+    });
+
+    // Close the shape
+    radarPoints.push(radarPoints[0]);
+
+    // Create a line generator
+    const line = d3.line()
+        .x(d => d[0])
+        .y(d => d[1])
+        .curve(d3.curveLinearClosed);
+
+    // Draw the shape
+    svg.append('path')
+        .datum(radarPoints)
+        .attr('d', line)
+        .style('fill', 'rgba(99, 102, 241, 0.2)')
+        .style('stroke', '#6366f1')
+        .style('stroke-width', 2)
+        .style('opacity', 0)
+        .transition()
+        .duration(500)
+        .style('opacity', 1);
+
+    // Add data points
+    svg.selectAll('.data-point')
+        .data(data)
+        .enter()
+        .append('circle')
+            .attr('r', 4)
+            .attr('cx', (d, i) => Math.cos(angleSlice * i - Math.PI/2) * rScale(d.value))
+            .attr('cy', (d, i) => Math.sin(angleSlice * i - Math.PI/2) * rScale(d.value))
+            .style('fill', '#6366f1')
+            .style('stroke', '#fff')
+            .style('stroke-width', 2)
+            .style('opacity', 0)
+            .transition()
+            .delay((d, i) => i * 50)
+            .duration(200)
+            .style('opacity', 1);
+};
+
 
 // Initialize
 loadUserData();
