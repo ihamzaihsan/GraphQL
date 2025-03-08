@@ -115,7 +115,7 @@ const getUserAudits = async () => {
 };
 
 // Query: Get user finsihed projects info
-const getUserFinshedProjects = async () => {
+const getUserFinishedProjects = async () => {
     const query = `
         query {
             user {
@@ -169,6 +169,6 @@ export {
     getUserInfo,
     getUserXP,
     getUserAudits,
-    getUserFinshedProjects,
+    getUserFinishedProjects,
     getSkillDetails
 };

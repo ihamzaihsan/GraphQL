@@ -1,5 +1,5 @@
 import { logout, isAuthenticated, getToken } from './auth.js';
-import { getUserInfo, getUserXP, getUserAudits, getUserFinshedProjects, getSkillDetails} from './query.js';
+import { getUserInfo, getUserXP, getUserAudits, getUserFinishedProjects, getSkillDetails} from './query.js';
 
 // Check authentication
 if (!isAuthenticated()) {
@@ -45,7 +45,7 @@ const loadUserData = async () => {
             getUserInfo(),
             getUserXP(),
             getUserAudits(),
-            getUserFinshedProjects(),
+            getUserFinishedProjects(),
             getSkillDetails(userId)
         ]);
 
