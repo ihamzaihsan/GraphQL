@@ -9,10 +9,11 @@ body {
 .graphql-header {
     text-align: center;
     font-size: 3.5rem;
-    margin: 150px 0;
     color: #222;
     font-family: Arial, sans-serif;
     letter-spacing: 3px;
+    position: relative;
+    top: -213px;
 }
 
 .cheema {

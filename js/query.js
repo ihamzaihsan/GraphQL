@@ -81,17 +81,15 @@ const getUserXP = async () => {
     const query = `
       {
         transaction(
-          where: { 
-            type: { _eq: "xp" }, 
-            event: { object: { name: { _eq: "Module" } } } 
-          }, 
-          order_by: { id: asc }
+            where: {type: {_eq: "xp"}, event: {object: {name: {_eq: "Module"}}}}
+            order_by: {id: asc}
         ) {
-          id
-          amount
-          createdAt
-          }
+            object{name}
+            id
+            amount
+            createdAt
         }
+    }
       `;
     return fetchGraphQL(query);
 };

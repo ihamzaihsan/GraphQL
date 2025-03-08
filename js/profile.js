@@ -1,5 +1,5 @@
 import { logout, isAuthenticated, getToken } from './auth.js';
-import { getUserInfo, getUserXP, getUserAudits, getUserFinshedProjects, getSkillDetails} from './graphql.js';
+import { getUserInfo, getUserXP, getUserAudits, getUserFinshedProjects, getSkillDetails} from './query.js';
 
 // Check authentication
 if (!isAuthenticated()) {
@@ -143,7 +143,8 @@ const createXPGraph = (transactions) => {
         return {
             date: new Date(t.createdAt),
             xp: cumulativeXP,
-            delta: t.amount
+            delta: t.amount,
+            object: t.object
         };
     });
 
@@ -317,6 +318,8 @@ const createXPGraph = (transactions) => {
             .html(`
                 <div class="tooltip-content">
                     <strong>${formatDate(d.date)}</strong>
+
+                    <div>Activity: <span style="color: #8b5cf6; font-weight: 600;">${d.object?.name || 'N/A'}</span></div>
                     <div>Total XP: <span style="color: var(--accent-primary); font-weight: 600;">${xpToKB(d.xp)} KB</span></div>
                     <div>Gained: <span style="color: #10b981; font-weight: 600;">+${xpToKB(d.delta)} KB</span></div>
                 </div>
