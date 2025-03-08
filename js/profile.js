@@ -670,22 +670,27 @@ const drawRadarChart = (containerSelector, data, title) => {
     const container = d3.select(containerSelector);
     container.selectAll("*").remove();
 
-    const width = 450;
-    const height = 398;
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-    const innerRadius = Math.min(width, height) * 0.4 - 10;
-
+    // Define aspect ratio
+    const viewBoxWidth = 465;
+    const viewBoxHeight = 398;
+    
+    // Create responsive SVG
     const svg = container.append('svg')
-        .attr('width', width)
-        .attr('height', height)
+        .attr('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('preserveAspectRatio', 'xMidYMid meet')
         .append('g')
-        .attr('transform', `translate(${width/2 -5},${height/2})`);
+        .attr('transform', `translate(${viewBoxWidth/2 -30},${viewBoxHeight/2})`);
+
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const innerRadius = Math.min(viewBoxWidth, viewBoxHeight) * 0.4 - 10;
 
     // Title
     svg.append('text')
         .attr('class', 'radar-title')
         .attr('text-anchor', 'middle')
-        .attr('y', -height/2 + 393)
+        .attr('y', -viewBoxHeight/2 + 393)
         .text(title);
 
     // Scales
@@ -725,13 +730,32 @@ const drawRadarChart = (containerSelector, data, title) => {
         const x = Math.cos(angle) * innerRadius;
         const y = Math.sin(angle) * innerRadius;
 
-        // Axis Labels
+        // Draw axis line
+        svg.append('line')
+            .attr('x1', 0)
+            .attr('y1', 0)
+            .attr('x2', Math.cos(angle) * innerRadius)
+            .attr('y2', Math.sin(angle) * innerRadius)
+            .style('stroke', '#94a3b8')
+            .style('stroke-width', 0.5);
+
+        // Axis Labels - position them better for small screens
         svg.append('text')
-            .attr('text-anchor', 'middle')
-            .attr('transform', `translate(${Math.cos(angle) * (innerRadius + 40)},${Math.sin(angle) * (innerRadius + 40)})`)
+            .attr('text-anchor', function() {
+                // Adjust text-anchor based on position
+                if (Math.abs(angle) < 0.1 || Math.abs(angle - Math.PI) < 0.1) {
+                    return 'middle';
+                } else if (angle > -Math.PI/2 && angle < Math.PI/2) {
+                    return 'start';
+                } else {
+                    return 'end';
+                }
+            })
+            .attr('transform', `translate(${Math.cos(angle) * (innerRadius + 30)},${Math.sin(angle) * (innerRadius + 25)})`)
             .text(axis)
-            .style('font-size', '12px')
-            .style('fill', '#6448b')
+            .attr('text-anchor', 'middle')
+            .style('font-size', '10px')
+            .style('fill','rgb(39, 42, 47)')
             .style('text-shadow', '0 1px 0 #fff');
     });
 
@@ -781,8 +805,20 @@ const drawRadarChart = (containerSelector, data, title) => {
             .delay((d, i) => i * 50)
             .duration(200)
             .style('opacity', 1);
+            
+    // Add tooltips to data points for better usability on small screens
+    svg.selectAll('.data-point-hover')
+        .data(data)
+        .enter()
+        .append('circle')
+            .attr('r', 15)
+            .attr('cx', (d, i) => Math.cos(angleSlice * i - Math.PI/2) * rScale(d.value))
+            .attr('cy', (d, i) => Math.sin(angleSlice * i - Math.PI/2) * rScale(d.value))
+            .style('fill', 'transparent')
+            .style('pointer-events', 'all')
+            .append('title')
+            .text(d => `${d.axis}: ${d.value}`);
 };
-
 
 // Initialize
 loadUserData();
